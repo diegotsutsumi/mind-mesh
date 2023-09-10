@@ -1,0 +1,53 @@
+#+BIBLIOGRAPHY: /home/tsutsumi/mind-mesh/bibliography.bib
+#+TITLE: Mind Mesh
+
+* Problem Statement
+The primary purpose of Mind Mesh is to help boost people's cognition abilities. There are two main main categories of methods for doing that, first, by directly improving brain health with exercises, food, socialization, etc. Second, by weaponazing minds with tools. Mind Mesh intends to help with the first by providing a thinking framework, but Mind Mesh's focus is to be a tool to enable automated reasoning.
+
+* Guiding principles
+1. *Human and Computer friendly*: Humans can easily learn and understand data / reasoning performed by Mind Mesh. Models used for automated reasoning in Mind Mesh are transparently human understandable mental models. At the same time, Mind Mesh performs the reasoning for humans, this is especially useful for exact reasoning under big knowledge bases, where human minds struggle with.
+
+2. *Explainable Reasoning*: In alignment with principle 1, the reasoning performed by Mind Mesh is explainable from evidence to causes, from premises to conclusions. Mind Mesh's output should have a clear chain of statements easily confirmed by a human.
+
+3. *Uncertain reasoning*: Real world problems often comes with partial data and uncertainty. Therefore Mind Mesh needs to encompass in its core uncertainty about facts or rules. Mind Mesh produces reasoning results together with levels of certinty or confidence. There are many known models in the literature for that combination, this principle doesn't prescribe any particular combination.
+
+* Solution
+Two components are used to implement a solution:
+- *Reference knowledge base*: A corpus of human readable text, e.g. one wikipedia page is a subset of a knowledge base, but also private custom text produced by users of this package. Different pieces of text are linked through relationships, representing a Causal DAG [cite:@pearl2000models]. The user only needs to input the relationships between pieces of text meshing together concepts to be reasoned upon.
+
+- *Probabilistic reasoner*: Software designed to give probabilistic answers to queries given the reference knowledge base, and its levels of confidence. This reasoner runs on top of the knowledge base and its links, it's designed to deal with partial information and degrees of belief about assertions being true or false.
+
+** Org roam
+Mind Mesh primary knowledge base system is [[http:www.orgroam.com][org-roam]]. Org-roam already implements a human readable knowledge base using a graph-like structure, with a couple of extra properties it's easy to make a mind mesh layer on top of that.
+
+** Assertions as compositions of org-roam nodes
+In the normal case there would be a org-roam node called "Neighbour" with some notes about a particular neighbour. So the idea here is to model reasoning assertions on top of existing notes.
+
+The current idea is that every assertion will be a new org-roam node, linking to ordinary org-roam nodes, an example is:
+
+The existing ordinary org-roam nodes, with existing links:
+#+begin_src org
+  #+title: Neighbour X
+  - neighbour X bought product Y <-- link to other note here
+#+end_src
+#+begin_src org
+  #+title: Product Y
+  - gardening tool to remove weeds
+  - wiki page link here
+#+end_src
+
+The assertion nodes:
+#+begin_src org
+  #+title: Product Y is excellent
+  #+property: values yes no
+  #+property: current-belief yes 0.5
+link to product y
+#+end_src
+#+begin_src org
+  #+title: Neighbour X likes Product Y
+  #+property: values yes no
+  #+property: current-belief none
+  #+property: causal-link product-y <-- some way of encoding conditional probabilities
+  link to product y
+  link to neighbour x
+#+end_src
